@@ -24,7 +24,7 @@ public class Search {
 	public static String clusters = "test/cluster/clusters/";
 	public static String terms = "data/features/frequency.txt";
 	
-	public static String urlString = "http://localhost:8989/solr";
+	public static String urlString = "http://localhost:8983/solr";
 	public static int numOfResults = 20;
 	
 	//cache 
