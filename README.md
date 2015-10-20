@@ -1,2 +1,0 @@
-# mmir
-Multimodal Information Retrieval
