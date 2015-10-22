@@ -11,5 +11,6 @@
 	<classpathentry kind="lib" path="lib/slf4j-api-1.7.12.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/weka.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

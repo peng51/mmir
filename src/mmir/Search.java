@@ -45,13 +45,14 @@ public class Search {
 			//System.out.println(line);
 		}
 		br.close();
-		String[] results = query(queries.get(0), 20);
+		HashMap<String, Double> results = query(queries.get(0), 20);
 		//for(String s : results)
 		//	System.out.println(s);
 	}
 	
 	//query with customed number of results
-	public static String[] query(String s, int num_results) throws SolrServerException{//query and output results
+	public static HashMap<String, Double> query(String s, int num_results) throws SolrServerException{//query and output results
+		HashMap<String, Double> map = new HashMap<String, Double>();
 		//query a numeric vector as a string
 		HttpSolrServer server = new HttpSolrServer(urlString);
 		// search
@@ -63,18 +64,19 @@ public class Search {
 	    // get results		
 	    QueryResponse qresponse = server.query(query);
 	    SolrDocumentList list = qresponse.getResults();
-	    String[] files = new String[list.size()];
+	    //String[] files = new String[list.size()];
 	    for(int i = 0; i < list.size(); i++){
 	    	//System.out.println(list.get(i).getFieldValue("id"));
-	    	files[i] = list.get(i).getFieldValue("id").toString();
-	    	System.out.println(list.get(i).getFieldValue("score"));
+	    	//files[i] = list.get(i).getFieldValue("id").toString();
+	    	//System.out.println(list.get(i).getFieldValue("score"));
+	    	map.put(list.get(i).getFieldValue("id").toString(), (Double) list.get(i).getFieldValue("score"));
 	    }
 	    
-	    return files;
+	    return map;
 	}
 	
 	//call with a default number of results
-	public static String[] query(String s) throws SolrServerException{//query and output results
+	public static HashMap<String, Double> query(String s) throws SolrServerException{//query and output results
 		
 	    return query(s,Search.numOfResults);
 	}
