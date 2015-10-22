@@ -28,7 +28,7 @@ public class Search {
 	//static int index_to_be_deleted = 0; // the  clusters to be deleted when hashmap is full
 	
 	public static void main(String[] args) throws IOException, SolrServerException{
-		search("data/query/google_query.txt");
+		search("data/query/google-query.txt");
 	}
 	
 	public static void search(String filename) throws IOException, SolrServerException{

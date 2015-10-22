@@ -22,7 +22,7 @@ public class Indexing {
 	
 	public static void main(String[] args) throws IOException, SolrServerException{
 		//index("data/index/visual-word-frequency.txt");
-		index("data/base/google_vw.txt");
+		index("data/base/google-vw.txt");
 	}
 	
 	public static long index(String filename) throws IOException, SolrServerException{//indexing existing index matrix

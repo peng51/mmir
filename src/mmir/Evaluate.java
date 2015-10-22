@@ -17,7 +17,7 @@ public class Evaluate {
 	public static Logistic logis = new Logistic();
 	
 	public static void main(String[] args) throws IOException{
-		initIndexing("data/");
+		initIndexing("data/base/google-vw-tw.txt");
 		allEval("data/query/google_query.txt");
 	}
 	
