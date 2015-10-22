@@ -1,23 +1,58 @@
 package mmir;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.solr.client.solrj.SolrServerException;
 
+import weka.classifiers.functions.Logistic;
+
 public class Evaluate {
 	
 	public static double lambda = 1.0;
+	public static Logistic logis = new Logistic();
 	
-	public static void main(String[] args){
+	public static void main(String[] args) throws IOException{
+		initIndexing("data/");
+		allEval("data/query/google_query.txt");
+	}
+	
+	public static void initIndexing(String filename){
+		try {
+			Indexing.index(filename);
+		} catch (IOException | SolrServerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static void allEval(String filename) throws IOException{
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filename)));
+		ArrayList<String> queries = new ArrayList<String>();
+		ArrayList<String> words = new ArrayList<String>();
+		String line;
+		while((line = br.readLine()) != null){
+			String[] path = line.split("\t")[0].split(".jpg")[0].split("/");
+			words.add(path[path.length - 1]);
+			queries.add(line.split("\t")[1]);
+			System.out.println(words.get(words.size() - 1));
+		}
+		br.close();
+		for(int i = 0; i < words.size(); i += 2){
+			train(words.get(i), queries.get(i));
+			test(words.get(i + 1), queries.get(i + 1));
+		}
+	}
+	
+	public static void train(String word, String query){
 		
 	}
 	
-	public static void train(){
-		
-	}
-	
-	public static void test(){
+	public static void test(String word, String query){
 		
 	}
 	
