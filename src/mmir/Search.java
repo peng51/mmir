@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -43,14 +44,15 @@ public class Search {
 			//System.out.println(line);
 		}
 		br.close();
-		HashMap<String, Double> results = query(queries.get(0), 20);
+		List<Entry> results = query(queries.get(0), 20);
 		//for(String s : results)
 		//	System.out.println(s);
 	}
 	
 	//query with customed number of results
-	public static HashMap<String, Double> query(String s, int num_results) throws SolrServerException{//query and output results
-		HashMap<String, Double> map = new HashMap<String, Double>();
+	public static List<Entry> query(String s, int num_results) throws SolrServerException{//query and output results
+		//HashMap<String, Float> map = new HashMap<String, Float>();
+		ArrayList<Entry> results = new ArrayList<Entry>();
 		//query a numeric vector as a string
 		HttpSolrServer server = new HttpSolrServer(urlString);
 		// search
@@ -67,15 +69,26 @@ public class Search {
 	    	//System.out.println(list.get(i).getFieldValue("id"));
 	    	//files[i] = list.get(i).getFieldValue("id").toString();
 	    	//System.out.println(list.get(i).getFieldValue("score"));
-	    	map.put(list.get(i).getFieldValue("id").toString(), (Double) list.get(i).getFieldValue("score"));
+	    	Entry entry = new Entry(list.get(i).getFieldValue("id").toString(), (Float)list.get(i).getFieldValue("score")); 
+	    	results.add(entry);
+	    	//map.put(list.get(i).getFieldValue("id").toString(), (Float) list.get(i).getFieldValue("score"));
 	    }
 	    
-	    return map;
+	    return results;
 	}
 	
 	//call with a default number of results
-	public static HashMap<String, Double> query(String s) throws SolrServerException{//query and output results
+	public static List<Entry>query(String s) throws SolrServerException{//query and output results
 		
 	    return query(s,Search.numOfResults);
+	}
+}
+
+class Entry{
+	public String id;
+	public Float score;
+	Entry(String id, Float score){
+		this.id = id;
+		this.score = score;
 	}
 }

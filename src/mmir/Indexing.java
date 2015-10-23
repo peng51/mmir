@@ -29,7 +29,7 @@ public class Indexing {
 		
 		HttpSolrServer server = new HttpSolrServer(urlString);
 		server.deleteByQuery( "*:*" );//clean the data in server
-		long docs_total_size=0;
+		long docs_total_size = 0;
 		//read index matrix from file
 		BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(filename)));
 		Collection<SolrInputDocument> docs = new ArrayList<SolrInputDocument>();
@@ -48,7 +48,7 @@ public class Indexing {
 		br.close();
 		server.add(docs);
 	    server.commit();
-	    docs_total_size=docs_total_size+docs.size();
+	    docs_total_size = docs_total_size + docs.size();
 	    System.out.println("indexing is done, total docs indexed: "+docs_total_size);
 	    return docs_total_size;
 	}
@@ -66,6 +66,7 @@ public class Indexing {
 		String s = line.split("\t")[2];
 		// includes field = term vector
 		doc.addField("includes", s);
+		//System.out.println(s);
 		return doc;
 	}
 	
