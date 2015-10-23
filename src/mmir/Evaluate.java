@@ -26,9 +26,12 @@ public class Evaluate {
 	public static double lambda = 0;
 	public static Logistic logis = new Logistic();
 	public static HashMap<String, Integer> map = new HashMap<String, Integer>();
+	public static ArrayList<Attribute> atts = new ArrayList<Attribute>();
+	
 	
 	public static void main(String[] args) throws IOException{
 		//initIndexing("data/base/google-vw-tw.txt");
+		initAtts();
 		initRecallCount("data/base/google-vw-tw.txt");
 		allEval("data/query/google-query.txt");
 	}
@@ -40,6 +43,16 @@ public class Evaluate {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public static void initAtts(){
+		atts.add(new Attribute("imageScore"));
+		atts.add(new Attribute("textScore"));
+		ArrayList<String> classVal = new ArrayList<String>();
+	    classVal.add("0");
+	    classVal.add("1");
+	    atts.add(new Attribute("@@class@@",classVal));
+	    //atts.
 	}
 	
 	public static void initRecallCount(String filename){
@@ -79,7 +92,7 @@ public class Evaluate {
 		int count = 0;
 		double imap = 0.0, tmap = 0.0, lmap = 0.0, xmap = 0.0, gmap = 0.0;
 		for(int i = 0; i < words.size(); i += 2){
-			train(words.get(i + 1), queries.get(i  + 1));
+			train(words.get(i + 1), queries.get(i + 1));
 			System.out.println("lambda = " + lambda);
 			List<Double> aps = test(words.get(i), queries.get(i));
 			if(aps.size() >= 5){
@@ -90,7 +103,7 @@ public class Evaluate {
 				gmap += aps.get(4);
 				count++;
 			}
-			break;
+			//break;
 		}
 		System.out.println("image map = " + (imap / count) + ", text map = " + (tmap / count));
 		System.out.println("linear map = " + (lmap / count) + ", max map = " + (xmap / count) + ", log map = " + (gmap / count));
@@ -124,43 +137,46 @@ public class Evaluate {
 	
 	public static void trainLog(List<Entry> ires, List<Entry> tres, String word){
 		// initialize instances for training
-		ArrayList<Attribute> atts = new ArrayList<Attribute>();
-		atts.add(new Attribute("imageScore"));
-		atts.add(new Attribute("textScore"));
 		Instances ins = new Instances("logfusion", atts, 2000);
 		// create instances from ires and tres
+		ins.setClassIndex(2);
 		Map<String, Float> imap = list2Map(ires);
 		for(int i = 0; i < tres.size(); i++){
 			Entry e = tres.get(i);
 			if(imap.containsKey(e.id)){
-				Instance in = new DenseInstance(2);
+				Instance in = new DenseInstance(3);
+				in.setDataset(ins);
 				in.setValue(0, imap.get(e.id));
 				in.setValue(1, e.score);
 				if(e.id.contains(word))
-					in.setClassValue(1);
+					in.setValue(2, "1");
 				else
-					in.setClassValue(0);
+					in.setValue(2, "0");
 				ins.add(in);
 			}
 			else{
-				Instance in = new DenseInstance(2);
+				Instance in = new DenseInstance(ins.numAttributes());
+				//System.out.println(ins.numAttributes());
+				in.setDataset(ins);
 				in.setValue(0, 0.0);
+				//in.setValue(arg0, arg1);
 				in.setValue(1, e.score);
 				if(e.id.contains(word))
-					in.setClassValue(1);
+					in.setValue(2, "1");
 				else
-					in.setClassValue(0);
+					in.setValue(2,"0");
 				ins.add(in);
 			}
 		}
 		for(String key: imap.keySet()){
-			Instance in = new DenseInstance(2);
+			Instance in = new DenseInstance(3);
+			in.setDataset(ins);
 			in.setValue(0, imap.get(key));
 			in.setValue(1, 0.0);
 			if(key.contains(word))
-				in.setClassValue(1);
+				in.setValue(2, "1");
 			else
-				in.setClassValue(0);
+				in.setValue(2, "0");
 			ins.add(in);
 		}
 		
@@ -184,8 +200,8 @@ public class Evaluate {
 			List<Entry> linRes = linFusion(ires, tres);
 			List<Entry> maxRes = maxFusion(ires, tres);
 			List<Entry> logRes = logFusion(ires, tres);
-			//for(int i = 0; i < linRes.size(); i++){
-			//	System.out.println(linRes.get(i).score);
+			//for(int i = 0; i < logRes.size(); i++){
+			//	System.out.println(logRes.get(i).id + " " + logRes.get(i).score);
 			//}
 			double iap = getAP(ires, word);
 			double tap = getAP(tres, word);
@@ -275,7 +291,8 @@ public class Evaluate {
 	
 	public static List<Entry> logFusion(List<Entry> ires, List<Entry> tres){
 		ArrayList<Entry> logRes = new ArrayList<Entry>();
-		
+		Instances ins = new Instances("logfusion", atts, 2000);
+		ins.setClassIndex(2);
 		// initialize instances for training
 		ArrayList<Attribute> atts = new ArrayList<Attribute>();
 		atts.add(new Attribute("imageScore"));
@@ -286,28 +303,37 @@ public class Evaluate {
 			for(int i = 0; i < tres.size(); i++){
 				Entry e = tres.get(i);
 				if(imap.containsKey(e.id)){
-					Instance in = new DenseInstance(2);
+					Instance in = new DenseInstance(3);
+					in.setDataset(ins);
 					in.setValue(0, imap.get(e.id));
 					in.setValue(1, e.score);
 					double cls = logis.classifyInstance(in);
-					Entry ne = new Entry(e.id, (float)cls);
+					double[] dist = logis.distributionForInstance(in);
+					//System.out.println(dist[0] + " " + dist[1]);
+					Entry ne = new Entry(e.id, (float)dist[1]);
 					logRes.add(ne);
 				}
 				else{
 					Instance in = new DenseInstance(2);
+					in.setDataset(ins);
 					in.setValue(0, 0.0);
 					in.setValue(1, e.score);
 					double cls = logis.classifyInstance(in);
-					Entry ne = new Entry(e.id, (float)cls);
+					double[] dist = logis.distributionForInstance(in);
+					//System.out.println(dist[0] + " " + dist[1]);
+					Entry ne = new Entry(e.id, (float)dist[1]);
 					logRes.add(ne);
 				}
 			}
 			for(String key: imap.keySet()){
 				Instance in = new DenseInstance(2);
+				in.setDataset(ins);
 				in.setValue(0, imap.get(key));
 				in.setValue(1, 0.0);
 				double cls = logis.classifyInstance(in);
-				Entry ne = new Entry(key, (float)cls);
+				double[] dist = logis.distributionForInstance(in);
+				//System.out.println(dist[0] + " " + dist[1]);
+				Entry ne = new Entry(key, (float)dist[1]);
 				logRes.add(ne);
 			}
 		} catch (Exception e1) {
