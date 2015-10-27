@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 
 import weka.classifiers.functions.Logistic;
 import weka.core.Attribute;
@@ -23,14 +24,18 @@ public class TwitterEval {
 	
 	public static double lambda = 0;
 	public static Logistic logis = new Logistic();
-	public static HashMap<String, Integer> map = new HashMap<String, Integer>();
+	public static HashMap<String, Integer> google_map = new HashMap<String, Integer>();
 	public static ArrayList<Attribute> atts = new ArrayList<Attribute>();
 	
 	
-	public static void main(String[] args) throws IOException{
-		//initIndexing("data/base/google-vw-tw.txt");
+	public static void main(String[] args) throws IOException, SolrServerException{
+		// use the google data and queries to train the logistic regression classifier and lambda
+		initIndexing("data/base/google-vw-tw.txt");
 		initAtts();
-		initRecallCount("data/base/twitter-vw-tw.txt");
+		initRecallCount("data/base/google-vw-tw.txt");
+		google_train("data/query/google-query.txt");
+		
+		// list the top 3/5 of the twitter search results? 
 		allEval("data/query/twitter-query.txt");
 	}
 	
@@ -59,10 +64,10 @@ public class TwitterEval {
 			String line;
 			while((line = br.readLine()) != null){
 				String key = line.split("\t")[0].split("images.seq/")[1].split("/")[0];
-				if(map.containsKey(key))
-					map.put(key, map.get(key) + 1);
+				if(google_map.containsKey(key))
+					google_map.put(key, google_map.get(key) + 1);
 				else
-					map.put(key, 1);
+					google_map.put(key, 1);
 			}
 			br.close();
 			//for(String key : map.keySet())
@@ -72,6 +77,47 @@ public class TwitterEval {
 			e.printStackTrace();
 		}
 
+	}
+	
+	public static void google_train(String filename) throws IOException{
+		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(filename)));
+		ArrayList<String> queries = new ArrayList<String>();
+		ArrayList<String> words = new ArrayList<String>();
+		String line;
+		while((line = br.readLine()) != null){
+			//String[] path = line.split("\t")[0].split(".jpg")[0].split("/");
+			words.add(line.split("\t")[1]);
+			queries.add(line.split("\t")[2]);
+			//System.out.println(words.get(words.size() - 1));
+		}
+		br.close();
+		
+		Instances inst = new Instances("logfusion", atts, 2000);
+		int count = 0;
+		double imap = 0.0, tmap = 0.0, lmap = 0.0, xmap = 0.0, gmap = 0.0;
+		for(int i = 0; i < words.size(); i += 1){
+			List<Double> aps = train(words.get(i), queries.get(i));
+			if(aps.size() >= 5){
+				imap += aps.get(0);
+				tmap += aps.get(1);
+				lmap += aps.get(2);
+				xmap += aps.get(3);
+				gmap += aps.get(4);
+				count++;
+			}
+			//break;
+		}
+		
+		// train lambda and logistic regression classifiers
+		lambda = imap / (imap + tmap);
+		try {
+			logis.buildClassifier(inst);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		System.out.println("image map = " + (imap / count) + ", text map = " + (tmap / count));
 	}
 	
 	public static void allEval(String filename) throws IOException{
@@ -361,7 +407,7 @@ public class TwitterEval {
 		// recall problem, relevant_docs bug
 		double ap = 0.0;
 		int relevant_detected = 0;
-		int relevant_docs = map.get(target);
+		int relevant_docs = google_map.get(target);
 		//System.out.println("relevant_docs = " + relevant_docs);
 		for(int i = 0; i < res.size(); i++){
 			int relevance = 0;
