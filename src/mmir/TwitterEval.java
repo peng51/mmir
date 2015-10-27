@@ -19,7 +19,7 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class Evaluate {
+public class TwitterEval {
 	
 	public static double lambda = 0;
 	public static Logistic logis = new Logistic();
@@ -30,8 +30,8 @@ public class Evaluate {
 	public static void main(String[] args) throws IOException{
 		//initIndexing("data/base/google-vw-tw.txt");
 		initAtts();
-		initRecallCount("data/base/google-vw-tw.txt");
-		allEval("data/query/google-query.txt");
+		initRecallCount("data/base/twitter-vw-tw.txt");
+		allEval("data/query/twitter-query.txt");
 	}
 	
 	public static void initIndexing(String filename){
@@ -50,7 +50,6 @@ public class Evaluate {
 	    classVal.add("0");
 	    classVal.add("1");
 	    atts.add(new Attribute("@@class@@",classVal));
-	    //atts.
 	}
 	
 	public static void initRecallCount(String filename){
