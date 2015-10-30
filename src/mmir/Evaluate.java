@@ -28,7 +28,9 @@ public class Evaluate {
 	
 	
 	public static void main(String[] args) throws IOException{
-		//initIndexing("data/base/google-vw-tw.txt");
+		//logis.setRidge(0.05);
+		//System.out.println(logis.getRidge());
+		initIndexing("data/base/google-vw-tw.txt");
 		initAtts();
 		initRecallCount("data/base/google-vw-tw.txt");
 		allEval("data/query/google-query.txt");
@@ -348,6 +350,8 @@ public class Evaluate {
 					return -1;
 			}
 		});
+		//logis.getRidge();
+		//System.out.println(logis.getRidge());
 		return logRes;
 	}
 	
