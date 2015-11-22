@@ -91,7 +91,7 @@ public class Evaluate {
 		br.close();
 		int count = 0;
 		double imap = 0.0, tmap = 0.0, lmap = 0.0, xmap = 0.0, gmap = 0.0;
-		for(int i = 0; i < words.size(); i += 2){
+		for(int i = 2; i < words.size(); i += 2){
 			train(words.get(i + 1), queries.get(i + 1));
 			System.out.println("lambda = " + lambda);
 			List<Double> aps = test(words.get(i), queries.get(i));
@@ -103,7 +103,7 @@ public class Evaluate {
 				gmap += aps.get(4);
 				count++;
 			}
-			//break;
+			break;
 		}
 		System.out.println("image map = " + (imap / count) + ", text map = " + (tmap / count));
 		System.out.println("linear map = " + (lmap / count) + ", max map = " + (xmap / count) + ", log map = " + (gmap / count));
@@ -200,9 +200,35 @@ public class Evaluate {
 			List<Entry> linRes = linFusion(ires, tres);
 			List<Entry> maxRes = maxFusion(ires, tres);
 			List<Entry> logRes = logFusion(ires, tres);
-			//for(int i = 0; i < logRes.size(); i++){
-			//	System.out.println(logRes.get(i).id + " " + logRes.get(i).score);
+			
+			/**
+			int num = 100;
+			
+			//System.out.println("-----image retrieval---------");
+			//for(int i = 0; i < num && i < ires.size(); i++){
+			//	System.out.println(ires.get(i).id + " " + ires.get(i).score);
 			//}
+			
+			System.out.println("-----text retrieval---------");
+			for(int i = 0; i < num && i < tres.size(); i++){
+				System.out.println(tres.get(i).id + " " + tres.get(i).score);
+			}
+			System.out.println("text retrieval size = " + tres.size());
+			
+			System.out.println("-----linear rule fusion---------");
+			for(int i = 0; i < num && i < linRes.size(); i++){
+				System.out.println(linRes.get(i).id + " " + linRes.get(i).score);
+			}
+			System.out.println("-----maximum rule fusion---------");
+			for(int i = 0; i < num && i < maxRes.size(); i++){
+				System.out.println(maxRes.get(i).id + " " + maxRes.get(i).score);
+			}
+			System.out.println("-----logistic regression fusion---------");
+			for(int i = 0; i < num && i < logRes.size(); i++){
+				System.out.println(logRes.get(i).id + " " + logRes.get(i).score);
+			} **/
+			
+			
 			double iap = getAP(ires, word);
 			double tap = getAP(tres, word);
 			double lap = getAP(linRes, word);
