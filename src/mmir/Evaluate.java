@@ -91,7 +91,7 @@ public class Evaluate {
 		br.close();
 		int count = 0;
 		double imap = 0.0, tmap = 0.0, lmap = 0.0, xmap = 0.0, gmap = 0.0;
-		for(int i = 2; i < words.size(); i += 2){
+		for(int i = 0; i < words.size(); i += 2){
 			train(words.get(i + 1), queries.get(i + 1));
 			System.out.println("lambda = " + lambda);
 			List<Double> aps = test(words.get(i), queries.get(i));
@@ -103,7 +103,7 @@ public class Evaluate {
 				gmap += aps.get(4);
 				count++;
 			}
-			break;
+			//break;
 		}
 		System.out.println("image map = " + (imap / count) + ", text map = " + (tmap / count));
 		System.out.println("linear map = " + (lmap / count) + ", max map = " + (xmap / count) + ", log map = " + (gmap / count));
@@ -204,10 +204,10 @@ public class Evaluate {
 			/**
 			int num = 100;
 			
-			//System.out.println("-----image retrieval---------");
-			//for(int i = 0; i < num && i < ires.size(); i++){
-			//	System.out.println(ires.get(i).id + " " + ires.get(i).score);
-			//}
+			System.out.println("-----image retrieval---------");
+			for(int i = 0; i < num && i < ires.size(); i++){
+				System.out.println(ires.get(i).id + " " + ires.get(i).score);
+			}
 			
 			System.out.println("-----text retrieval---------");
 			for(int i = 0; i < num && i < tres.size(); i++){
@@ -338,6 +338,7 @@ public class Evaluate {
 					//System.out.println(dist[0] + " " + dist[1]);
 					Entry ne = new Entry(e.id, (float)dist[1]);
 					logRes.add(ne);
+					imap.remove(e.id);
 				}
 				else{
 					Instance in = new DenseInstance(2);
